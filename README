@@ -1,0 +1,158 @@
+/////////////////////////////////////////////////////////////////////////////
+//////////// THE LOSSLESS TRUE AUDIO CODEC ANSI-C LIBRARY V2.3 //////////////
+/////////////////////////////////////////////////////////////////////////////
+
+This package contains a full-futured codec library for realtime encoding and
+decoding of True Audio (TTA) files.
+
+The library has 2 set of functions, which provides a possibility to work in
+applications of any complexity.
+
+////////////////////////// TTA decoder functions ////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+Two functions below are intended to create new decoder and to free previously
+allocated resources correctly when done. The 'iocb' structure must be
+initialized before use. Good sample code of this library usage can be found
+in 'console' folder of the source code package.
+
+	void tta_decoder_new(TTA_io_callback *iocb);
+	void tta_decoder_done();
+
+The '_init_get_info' function initializes the decoder and fills the info
+structure retrieving the data from the file header. The '_init_set_info'
+function will initialize the decoder with stream parameters from previously
+filled "info" structure.
+
+	int tta_decoder_init_get_info(TTA_info *info);
+	int tta_decoder_init_set_info(TTA_info *info);
+
+The '_set_password' function can be used to decode password protected data.
+The encrypted data will be decoded correctly only if the right password is
+set.
+
+	void tta_decoder_set_password(void const *pstr, TTAuint32 len);
+
+The '_frame_reset' function is intended to reinitialize the decoder for
+reading data from new data source e.g. for decoding the frame data directly
+from the memory buffer. The 'iocb' structure must be initialized before use.
+
+	int tta_decoder_frame_reset(TTAuint32 frame, TTA_io_callback *iocb);
+
+The '_process_stream' function can be used to get a chunk of the decompressed
+data. This function accepts requested count of samples as a parameter and
+returns the decompressed data into the 'output' buffer. The count of actually
+decoded samples is returned as a function value. The 'tta_callback' is a
+function parameter, intended for the extension of possibilities of the user
+program. It can be used to get a statistics of the decoding process. The
+'tta_callback' parameter must be set to NULL if not used.
+
+	int tta_decoder_process_stream(TTAuint8 *output, TTAuint32 req_count,
+		TTA_CALLBACK tta_callback);
+
+The '_process_frame' function can be used to decode one TTA frame of
+'in_bytes' size into the 'output' buffer of 'out_bytes' size.
+
+	int tta_decoder_process_frame(TTAuint32 in_bytes, TTAuint8 *output,
+		TTAuint32 out_bytes);
+
+The '_set_position' function allows to jump to different parts of the audio
+track playback. Function accepts the time position in seconds where playback
+has to start, and returns the actual time position of start of the next
+audio frame as a 'new_pos' parameter.
+
+	int tta_decoder_set_position(TTAuint32 seconds, TTAuint32 *new_pos);
+
+All of the int-type functions return zero on success, if another is not
+specified in function description. Otherwise, -1 is returned. The error code
+can be easily retrieved using '_get_error' function. This function returns
+the code which has a TTA_CODEC_STATUS type.
+
+	TTA_CODEC_STATUS tta_decoder_get_error();
+
+The '_get_rate' function returns the dynamic bit-rate of compressed data
+stream in Kbps. This function can be used in case of separate processing of
+each data frame. In other cases it's better to use the tta_callback function.
+
+	int tta_decoder_get_rate();
+
+////////////////////////// TTA encoder functions ////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+Two functions below are intended to create new encoder and to free previously
+allocated resources correctly when done. The 'iocb' structure must be
+initialized before use.
+
+	void tta_encoder_new(TTA_io_callback *iocb);
+	void tta_encoder_done();
+
+The '_init_set_info' function will initialize the encoder with stream
+parameters from previously filled "info" structure. The 'offset' parameter of
+this function specifies the count of bytes to skip from the beginning of the
+output file if required.
+
+	int tta_encoder_init_set_info(TTA_info *info, TTAuint32 offset);
+
+The '_set_password' function can be used to enable password protection feature
+for encoder. The output data will be password protection.
+
+	void tta_encoder_set_password(void const *pstr, TTAuint32 len);
+
+The '_frame_reset' function is intended to reinitialize the encoder for
+reading from new data source e.g. for encoding the frame data directly from
+the memory buffer. The 'iocb' structure must be initialized before use.
+
+	void tta_encoder_frame_reset(TTAuint32 frame, TTA_io_callback *iocb);
+
+The '_process_stream' function can be used to compress a chunk of the input
+data. The function accepts the chunk of PCM audio data of 'in_bytes' size
+from 'input' buffer. The 'tta_callback' is a function parameter, intended for
+the extension of possibilities of the user program. It can be used to get
+a statistics of the decoding process. The 'tta_callback' parameter must be
+set to NULL if not used.
+
+	int tta_encoder_process_stream(TTAuint8 *input, TTAuint32 in_bytes,
+		TTA_CALLBACK tta_callback);
+
+The '_process_frame' function can be used to produce one TTA frame. The
+function accepts the chunk of PCM audio data of 'in_bytes' size from 'input'
+buffer.
+
+	int tta_encoder_process_frame(TTAuint8 *input, TTAuint32 in_bytes);
+
+The '_encoder_finalize' function is intended to finalize the encoding
+process. This function must be called when you're finished encoding.
+
+	int tta_encoder_finalize();
+
+All of the int-type functions return zero on success, if another is not
+specified in function description. Otherwise, -1 is returned. The error code
+can be easily retrieved using '_get_error' function. This function returns
+the code which has a TTA_CODEC_STATUS type.
+
+	TTA_CODEC_STATUS tta_encoder_get_error();
+
+The '_get_rate' function returns the dynamic bit-rate of compressed data
+stream in Kbps. This function can be used in case of separate processing of
+each data frame. In other cases it's better to use the tta_callback function.
+
+	int tta_encoder_get_rate();
+
+////////////////////////////// Contributors /////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+Listed in chronological order:
+
+Aleksander Djuric, Pavel Zhilin, Tamir Barak, Noam Koenigstein,
+Kazuki Oikawa, Christophe Paris, Eugene Okhotsky, Yoshihisa Uchida,
+LM Poh, Scott Watson.
+
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+Copyright (c) 1999-2015 Aleksander Djuric. All rights reserved.
+
+For the latest in news and downloads, please visit the official True Audio
+project site:
+
+http://www.true-audio.com/
